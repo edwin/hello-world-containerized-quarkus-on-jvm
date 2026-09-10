@@ -1,9 +1,9 @@
 ## Stage 1 : build with maven builder image with native capabilities
 FROM registry.redhat.io/ubi9/openjdk-21:1.24 AS build
-COPY --chown=quarkus:quarkus --chmod=0755 mvnw /code/mvnw
-COPY --chown=quarkus:quarkus .mvn /code/.mvn
-COPY --chown=quarkus:quarkus pom.xml /code/
-USER quarkus
+COPY --chown=185 --chmod=0755 mvnw /code/mvnw
+COPY --chown=185 .mvn /code/.mvn
+COPY --chown=185 pom.xml /code/
+USER 185
 WORKDIR /code
 COPY src /code/src
 RUN ./mvnw clean package
@@ -18,10 +18,10 @@ LABEL JAVA_VERSION="21"
 ENV LANGUAGE='en_US:en'
 ENV TZ='Asia/Jakarta'
 
-COPY --chown=185 target/quarkus-app/lib/ /deployments/lib/
-COPY --chown=185 target/quarkus-app/*.jar /deployments/
-COPY --chown=185 target/quarkus-app/app/ /deployments/app/
-COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
+COPY --from=build --chown=185 /code/target/quarkus-app/lib/ /deployments/lib/
+COPY --from=build --chown=185 /code/target/quarkus-app/*.jar /deployments/
+COPY --from=build --chown=185 /code/target/quarkus-app/app/ /deployments/app/
+COPY --from=build --chown=185 /code/target/quarkus-app/quarkus/ /deployments/quarkus/
 
 EXPOSE 8080
 USER 185
